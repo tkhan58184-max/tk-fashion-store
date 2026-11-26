@@ -1,0 +1,13 @@
+// Replace this sample with your WhatsApp number: country code + number, digits only.
+const WHATSAPP_NUMBER = "923XXXXXXXXX";
+const menuButton=document.querySelector(".menu-toggle"),nav=document.querySelector(".nav");
+if(menuButton&&nav){menuButton.addEventListener("click",()=>{const open=nav.classList.toggle("open");menuButton.setAttribute("aria-expanded",String(open));});}
+let cart=[];try{cart=JSON.parse(localStorage.getItem("tkMensCart"))||[];}catch{cart=[];}
+function updateCart(){const count=document.querySelector("#cart-count");if(count)count.textContent=cart.reduce((s,x)=>s+x.qty,0);const items=document.querySelector("#cart-items"),total=document.querySelector("#cart-total");if(items)items.textContent=cart.length?cart.map(x=>`${x.name} × ${x.qty} — PKR ${(x.price*x.qty).toLocaleString("en-PK")}`).join(" | "):"Your bag is empty.";if(total)total.textContent=`Total: PKR ${cart.reduce((s,x)=>s+x.price*x.qty,0).toLocaleString("en-PK")}`;}
+function saveCart(){localStorage.setItem("tkMensCart",JSON.stringify(cart));updateCart();}
+function sendWhatsApp(message){if(WHATSAPP_NUMBER.includes("X")){alert("Please add your WhatsApp number in script.js first.");return;}window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,"_blank","noopener");}
+document.querySelectorAll(".add-cart").forEach(btn=>btn.addEventListener("click",()=>{const name=btn.dataset.name,price=Number(btn.dataset.price),found=cart.find(x=>x.name===name);if(found)found.qty++;else cart.push({name,price,qty:1});saveCart();const old=btn.textContent;btn.textContent="ADDED ✓";setTimeout(()=>btn.textContent=old,1000);}));
+const checkout=document.querySelector("#checkout-btn");if(checkout)checkout.addEventListener("click",()=>{if(!cart.length)return alert("Your shopping bag is empty.");const lines=cart.map(x=>`${x.name} x ${x.qty}: PKR ${x.price*x.qty}`);const total=cart.reduce((s,x)=>s+x.price*x.qty,0);sendWhatsApp(`Assalam-o-Alaikum! I want to order from TK – by Talha Khan:\n${lines.join("\n")}\nTotal: PKR ${total}`);});
+const search=document.querySelector("#product-search");if(search)search.addEventListener("input",()=>{const q=search.value.toLowerCase().trim();document.querySelectorAll(".product-card").forEach(card=>card.hidden=!card.dataset.search.includes(q));});
+const form=document.querySelector("#contact-form");if(form)form.addEventListener("submit",e=>{e.preventDefault();const name=document.querySelector("#name").value,email=document.querySelector("#email").value,msg=document.querySelector("#message").value;sendWhatsApp(`Hello TK! Name: ${name}\nEmail: ${email}\nMessage: ${msg}`);});
+updateCart();
